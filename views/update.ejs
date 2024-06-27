@@ -1,0 +1,63 @@
+<%- include("templates/head.ejs") %>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main class="form-pg">
+    <section class="content-form">
+        <h2><%= title %></h2>
+        <p id="error">Error</p>
+        <form action="/updated" method="post" id="f-reg">
+            <input type="hidden" name="id_user" value="<%= user.id_user %>">
+            <% if (type === "email") {%>
+            <input type="hidden" name="pass" value="<%= user.pass %>">
+            <div>
+                <label for="em">Actualiza Nuevo correo electronico</label>
+                <input class="in-s" type="email" id="em" name="email" required placeholder="<%= user.email %>">
+            </div>
+            <% } else if (type === "pass") {%>
+            <input type="hidden" name="email" value="<%= user.email %>">
+            <div>
+                <label for="pw">Contraseña</label>
+                <input class="in-s" type="password" id="pw" name="pass" required placeholder="Nueva contraseña">
+            </div>
+            <div>
+                <label for="pw">Confirma la contraseña nueva</label>
+                <input class="in-s" type="password" id="pw2" required placeholder="Nueva contraseña">
+            </div>
+            <% } %>
+            <input type="submit" class="btn-b" value="Actualizar" id="submit">
+        </form>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<script>
+    // == Password Validation ==
+    <% if (type === "pass") {%>
+    document.getElementById("f-reg").addEventListener("submit", () => {
+        let pw = document.getElementById("pw").value;
+        let pw2 = document.getElementById("pw2").value;
+        if (pw !== pw2) { // If passwords differ
+            let error = document.getElementById("error");
+            error.innerHTML = "Contraseñas no coinciden";
+            error.style.display = "block";
+            event.preventDefault(); // Prevent form submission
+        }
+    })
+    <% } %>
+    
+    // == POP UP Message Handler ==
+    window.onload = function() {
+    <% if (typeof msj !== 'undefined' && msj) { %> 
+        let error = document.getElementById("error");
+        error.innerHTML = "Correo electrónico ya registrado, utiliza otro correo electrónico.";
+        error.style.display = "block";
+    <% } %> 
+    };
+</script>
+</body>
+</html>

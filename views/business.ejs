@@ -1,0 +1,147 @@
+<%- include("templates/head.ejs") %>
+<link rel="stylesheet" href="/css/business.css">
+<!-- Map/Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main>
+<!-- Business information -->
+    <section class="content-width business">
+            <figure>
+                <img src="/locations/<%= lc[0].name %>.jpg" alt="">
+            </figure>
+
+            <h2><%= lc[0].name %></h2>
+
+            <div class="desc">
+                <h3>Descripción</h3>
+                <p><%= lc[0].descr %></p>
+            </div>
+
+        <%if (loggedIn === true) {  %>
+            <% if (fav > 0) { %>  <!-- if it's already favorite -->
+            <div class="add-fav" id="remFav">
+                <p><i class="fa-solid fa-heart"></i></p>
+                <p class="fav">quitar de favoritos</p>
+
+            <% } else { %> <!--  if not favorite  -->
+            <div class="add-fav" id="addFav">
+                <p><i class="fa-regular fa-heart"></i></p>
+                <p class="fav">añadir a favoritos</p>
+            <% }%>
+
+        <% } else { %> <!-- if not logged in -->
+            <div class="add-fav" id="logFav">
+                <p><i class="fa-regular fa-heart"></i></p>
+                <p class="fav">iniciar sesión para añadir a favoritos</p>
+        <% } %>
+            </div>
+        <!-- General Information -->
+            <div class="info">
+                <h3>Información</h3>
+                <%  let verf, rsvn = "";
+                    if(lc[0].verf === 1){verf = "Verificado"} else {verf = "Sugerido"};
+                    if(lc[0].rsvn === 1){rsvn = "Reservación requierido"} else {rsvn = "Sin reservación"} %>
+                <ul>
+                    <li><i class="fa-regular fa-circle-check"></i><%= verf %></li>
+                    <li><i class="fa-solid fa-store"></i><%= lc[0].cate %></li>
+                    <li><i class="fa-regular fa-calendar-check"></i><%= rsvn %></li>
+
+                    <li><i class="fa-solid fa-location-dot"></i><%= lc[0].address %></li>
+                    <li><i class="fa-solid fa-phone"></i><a href="tel:<%= lc[0].tel %>"><%= lc[0].tel %></a></li>
+                    <li><i class="fa-solid fa-earth-americas"></i><a href="https://<%= lc[0].url %>"><%= lc[0].url %></a></li>
+
+                </ul>
+            </div>
+        <!-- Mini-Map -->
+            <div class="location"></div>
+                <h3>Ubicación</h3>
+                <div id="map-mini">
+                </div>
+            </div>
+    </section>
+    <!-- Pop Up after reigstered as a new location -->
+    <section id="popup">
+        <div>
+            <h2>¡Gracias!</h2>
+            <p>El nuevo lugar dónde nos sugeriste se agregó exitosamente.</p>
+            <button type="button" class="btn-b" id="cerrar">Cerrar</button>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<!-- Map/Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    // == FAVORITE HANDLING ==
+    const logFav = document.getElementById("logFav");
+    const addFav = document.getElementById("addFav");
+    const remFav = document.getElementById("remFav");
+    if (logFav) {
+        logFav.addEventListener("click", () =>{
+            window.location.href = "/logIn";
+        })
+    } else if (addFav){
+        document.getElementById("addFav").addEventListener("click", () =>{
+            console.log("clicked to add")
+            window.location.href = "/local/<%= lc[0].id_location %>/addFav";
+        })
+    } else if (remFav) {
+        document.getElementById("remFav").addEventListener("click", () =>{
+            console.log("clicked to remove")
+            window.location.href = "/local/<%= lc[0].id_location %>/remFav";
+        })
+    }
+
+    // == POP UP HANDLING ==
+    window.onload = function() {
+    <% if (typeof msj !== 'undefined' && msj) { %> 
+        let popup = document.getElementById("popup");
+        let cerrarBtn = document.getElementById("cerrar");
+        popup.style.display = "block";
+        cerrarBtn.addEventListener("click", () => {
+            popup.style.display = "none";
+        });
+    <% } %> 
+    };
+
+    // == MAP ==
+    // Customizing the map pin
+    var mapPin = L.icon({
+        iconUrl: '/img/map-pin.png',
+        iconSize:     [38, 40], // size of the icon
+        iconAnchor:   [19, 40] // point of the icon which will correspond to marker's location
+    });
+    // Default location and Zooming
+    var mapMini = L.map('map-mini', {
+        center: [<%= lc[0].coodi_long %>, <%= lc[0].coodi_lat %>], //coodinate Lat, Long
+        zoom: 18
+    });
+
+    // Importing open street map
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(mapMini);
+    
+    // Adding marker to the map at the location of the business
+    var business = L.marker([<%= lc[0].coodi_long %>, <%= lc[0].coodi_lat %>], {icon: mapPin}).addTo(mapMini);
+    console.log(<%= lc[0].coodi_long %>, <%= lc[0].coodi_lat %>)
+
+    // zoom controller location to change (default top left)
+    mapMini.zoomControl.setPosition("bottomright");
+
+    //error handling
+    function onLocationError(e) {
+        console.log(e.message);
+    }
+
+</script>
+</body>
+</html>

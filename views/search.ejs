@@ -1,0 +1,260 @@
+<%- include("templates/head.ejs") %>
+<link rel="stylesheet" href="css/search.css">
+<!-- Map/Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main>
+<!-- MAP -->
+<section id="map">
+    <div id="map-content">
+    </div>
+</section>
+
+<!-- SEARCH  -->
+<section class="search">
+    <form action="/search" method="GET" id="search-form">
+        <!-- Search Bar -->
+        <fieldset class="bar-wrap">
+            <div class="bar">
+                <div class="in-f">
+                    <input type="text" name="txt" id="txt-search" placeholder="Buscar con nombre" >
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+                    <button class="btn-b" id="btn-filter"><i class="fa-solid fa-sliders"></i></button>
+                    <button class="btn-b" id="nearby-btn"><i class="fa-solid fa-crosshairs"></i></button>
+                </div>
+            </div>
+        </fieldset>
+        <!-- Slide In Filter -->
+        <div id="filter-bg" style="display: none">
+            <fieldset id="filter">
+                <legend>Filtros</legend>
+                <div class="filter-item">
+                    <label for="cate">Categoría</label>
+                    <select name="cate" id="cate" class="in-s">
+                        <option value="any">-</option>
+                        <option value="cafe">Cafetería</option>
+                        <option value="brunch">Brunch</option>
+                        <option value="restaurante">Restaurante</option>
+                        <option value="bar">Bar</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div class="filter-switch">
+                    <label>Sólo lugares verificados
+                        <input type="checkbox" name="verf" id="verified-switch">
+                        <div class="base"></div>
+                    </label>
+                </div>
+                <div class="filter-switch">
+                    <label>Sin reservación
+                        <input type="checkbox" name="rsvn" id="rsvn-switch">
+                        <div class="base"></div>
+                    </label>   
+                </div>
+            <button type="submit" class="btn-b" id="btn-apply">Buscar</button>
+            </fieldset>
+        </div>
+    </form>
+</section>
+<!-- RESULT -->
+<section class="results">
+    <div class="cards">
+        <% lc.forEach((i) => { %>
+        <div class="card-mini" data-long="<%= i.coodi_long %>" data-lat="<%= i.coodi_lat %>" data-id="<%= i.id_location %>" data-name="<%= i.name %>">
+            <div class="title">
+                <h2><a href="local/<%= i.id_location %>"><%= i.name %></a></h2>
+                <!-- Favorite logic -->
+                <% if (loggedIn === true) { %>
+                    <% if (i.isFavorite) { %>  <!-- If already favorite -->
+                        <p class="fav" id="remFav_<%= i.id_location %>"><i class="fa-solid fa-heart"></i></p>
+                    <% } else { %> <!-- If not favorite -->
+                        <p class="fav" id="addFav_<%= i.id_location %>"><i class="fa-regular fa-heart"></i></p>
+                    <% } %>
+                <% } else { %> <!-- If not logged in -->
+                        <p class="fav" id="logFav"><i class="fa-regular fa-heart"></i></p>
+                <% } %>
+            </div>
+            <div>
+                <ul class="tag">
+                    <% if (i.verf === 1) { %>
+                        <li>Verificado</li>
+                    <% } else { %>
+                        <li>Sugerido</li>
+                    <% }%>
+                    <li><%= i.cate %></li>
+                    <% if (i.rsvn === 1) { %>
+                        <li>Reservación requierida</li>
+                    <% } else { %>
+                        <li>Sin reservación</li>
+                    <% }%>
+                </ul>
+            </div>
+            <figure>
+                <img src="/locations/<%= i.name %>.jpg" alt="<%= i.name %>">
+            </figure>
+        </div>
+        <% }) %>
+    </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Search Script -->
+<script src="/js/search.js"></script> 
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<!-- Map/Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    // == MAP ==
+
+    // Set Default location and zoom
+    var map = L.map('map', {
+        center: [41.401988205191316, 2.1739608000167956],
+        zoom: 13
+    });
+    // Importing open street map
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 20,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // custom pin for business locations
+    var mapPin = L.icon({
+        iconUrl: '/img/map-pin.png',
+        iconSize:     [38, 40], // size of the icon
+        iconAnchor:   [19, 40], // point of the icon which will correspond to marker's location
+        popupAnchor:  [0, -45] // point from which the popup should open relative to the iconAnchor
+    });
+    // custom pin for user location
+    var mapUser = L.icon({
+        iconUrl: '/img/map-user.png',
+        iconSize:     [40, 40], // size of the icon
+        iconAnchor:   [20, 20], // point of the icon which will correspond to marker's location
+    });
+
+    var markers = []; // making a container for markers
+    var circle; // Declare the circle variable for location radius for later
+
+    // getting mainly location information from mini-cards
+    document.querySelectorAll('.card-mini').forEach(card => {
+        var lat = card.dataset.lat;
+        var long = card.dataset.long;
+        var id = card.dataset.id;
+        var name = card.dataset.name;
+
+        if (lat && long) { // if coodinates are there (should be there)
+            var marker = L.marker([long, lat], {icon: mapPin}) // set marker info
+            marker.bindPopup(name) //popup function in leaflet
+            marker.addTo(map) // add to map
+            marker.on('mouseover', (e)=>{ // mouseover to show the name
+                e.target.openPopup(); // this.openPopup() didn't work so helped with e
+            })
+            marker.on('mouseout', (e)=>{ // mouseout to hide the name
+                e.target.closePopup();
+            })
+            marker.on('click', ()=>{ // click to slide the dedicated mini-card to the top
+                var targetCard = document.querySelector(`.card-mini[data-id='${id}']`);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            marker._id = id; // Custom property to link marker and card
+            markers.push(marker); // add marker to the markers
+        }
+    });
+
+    // get user location, both from the index page, and inpage button
+    function getgeo(prevDef = false) {
+        //console.log("Clicked to get user location.");
+        if(prevDef){ // prevent default only when it's executed from the inpage button
+            event.preventDefault(); // Prevent form submission
+        }
+
+        map.locate({
+            setView: true,
+            maxZoom: 15,  // Adjust zoom level as needed
+            timeout: 4000,  // Timeout set to 4 seconds
+            watch: false  // Set to true if you want continuous location updates
+        });
+
+        map.on('locationfound', function(e) {
+            var userLocation = e.latlng;
+
+            //remove previous circle to avoid duplication
+            if (circle) {
+                //console.log("already one")
+                map.removeLayer(circle);
+            }
+
+            //make new circle with 1km radius
+            circle = L.circle(userLocation, {
+                color: '#FFDA77', // color-primary-v
+                fillcolor: '#FFDA77',
+                opacity: 0.4,
+                radius: 1000 // 1km
+            }).addTo(map)
+            
+            //filter with this circle
+            markers.forEach((marker) => {
+                var markerCoodi = marker.getLatLng(); //getLatLng is from Leaflet
+                var distance = userLocation.distanceTo(markerCoodi);
+                var targetCard = document.querySelector(`.card-mini[data-id='${marker._id}']`);
+                
+                if (distance <= 1000) { // if distance is less than 1km
+                        if (!map.hasLayer(marker)) {
+                        marker.addTo(map); // Add marker if not already on map
+                    }
+                    if (targetCard) { // if there is a card inside the area
+                        targetCard.classList.remove('hidden'); // Show the card
+                    }
+                } else { // if distance is more than 1km
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker); // Remove marker if outside the 1km radius
+                    }
+                    if (targetCard) { // if there is a card inside the area
+                        targetCard.classList.add('hidden'); // Hide the card
+                    }
+                }
+            });
+            L.marker(userLocation, {icon: mapUser}).addTo(map); // add a marker at user's location
+        });
+        // Error handling when the location couldn't get
+        map.on('locationerror', function(e) {
+            console.log("Location error:", e.message);
+            alert("No ha podidio obtener la ubicación. Cambia la configuración o intente más tarde.");
+        });
+    }
+
+    // nearby button inpage
+    var nearby = document.getElementById('nearby-btn');
+    nearby.addEventListener('click', () => {
+        getgeo(true); // Invoke getgeo() with preventDefault
+        window.location.href = '/search?nearby=true';
+    })
+
+    // nearby param from index.ejs
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    if (getQueryParam('nearby') === 'true') {
+        getgeo();
+    }
+
+    // zoom controller location to change (default top left)
+    map.zoomControl.setPosition("bottomright");
+
+    //error handling
+    function onLocationError(e) {
+        console.log(e.message);
+    }
+</script>
+</body>
+</html>

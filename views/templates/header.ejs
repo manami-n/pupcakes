@@ -1,0 +1,29 @@
+</head>
+<body>
+<!-- HEADER -->
+<header>
+    <div class="content-width">
+        <h1>
+            <a href="/" aria-label="Enlace al inicio">
+                <img src="/img/pupcakes.png" alt="" aria-hidden="true"></a>
+        </h1>
+<!-- Nav -->
+        <nav>
+            <ul class="nav">
+                <li><a href="/search" aria-label="Buscar"><i class="fa-solid fa-magnifying-glass"></i></a></li>
+                <li id="user-icon"><img src="/img/user-icon.png" alt="Usuario">
+                <ul id="nav-toggle">
+                    <% if (loggedIn === true) { %>
+                        <li><a href="/account">Tu Área</a></li>
+                        <li><a href="/logout">Log Out</a></li>
+                    <%} else { %>
+                        <li><a href="/login">Log In</a></li>
+                        <li><a href="/signup">Registrar</a></li>
+                    <%} %>
+                    
+                </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>

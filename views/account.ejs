@@ -1,0 +1,122 @@
+<%- include("templates/head.ejs") %>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main>
+    <section class="account">
+        <div>
+            <h2><%= user.name %></h2>
+        </div>
+        <!-- Favorite List -->
+        <div class="info-l" id="fav-list">
+            <h3>Lista de favoritos</h3>
+            <p><i class="fa-solid fa-angle-right"></i></p>
+            <div class="imgs" id="fav">
+                <% if (list.length > 0 ){%>
+                    <% list.slice(-4).forEach((i) => { //maximum 4 in the list%>
+                        <figure>
+                            <img src="/locations/<%= i.name %>.jpg" alt="<%= i.name %>">
+                        </figure>
+                <% }) } else { %>
+                    <p>Aún no tienes favorito. <a href="/search">Encontrar uno</a></p>
+                <% }%>
+            </div>
+        </div>
+        <!-- Suggestion -->
+        <div>
+            <div class="info-l" id="suggest">
+                <h3>Sugerir un sitio</h3>
+                <p><i class="fa-solid fa-angle-right"></i></p>
+                <p class="desc">Agregar un nuevo lugar al mapa: un espacio acogedor y pet-friendly donde podemos disfrutar de momentos especiales junto a sus mascotas.</p>
+            </div>
+        </div>
+        <h2>Información</h2>
+        <div class="info-l">
+        <div class="info-s" id="emChange">
+            <p>Cambiar tu Email</p>
+            <p><%= user.email %> <i class="fa-solid fa-angle-right"></i></p>
+        </div>
+        <div class="info-s" id="pwChange">
+            <p>Cambiar tu contraseña</p>
+            <p><i class="fa-solid fa-angle-right"></i></p>
+        </div>
+        <div class="info-s" id="logout">
+            <p>Log out</p>
+            <p><i class="fa-solid fa-angle-right"></i></p>
+        </div>
+        <div class="info-s" id="delete">
+            <p>Eliminar tu cuenta</p>
+            <p><i class="fa-solid fa-angle-right"></i></p>
+        </div>
+    </section>
+<!-- Message POPUP -->
+    <section id="popup">
+    </section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<script>
+    // == Clicked Handling ===
+    // When delete is clicked, show pop up to confirm
+    document.getElementById("delete").addEventListener("click", () =>{
+        let popup = document.getElementById("popup");
+        let cerrarBtn = document.getElementById("cerrar");
+        let deleteBtn = document.getElementById("deleted");
+        popup.innerHTML = `<div>
+                            <h2>¿Estás seguro?</h2>
+                            <p>Tu cuenta será eliminada permanentemente.<br>
+                                ¿Estás seguro de que quieres dejarnos?</p>
+                            <button type="button" class="btn-b" id="deleted" onclick="borrar()">Sí</button>
+                            <button type="button" class="btn-b" id="cerrar" onclick="cerrar()">No</button>
+                            </div>`
+        popup.style.display = "block";
+    })
+    // When email update is clicked
+    document.getElementById("emChange").addEventListener("click", () =>{
+        window.location.href = "/update?t=email";
+    })
+    // When password update is clicked
+    document.getElementById("pwChange").addEventListener("click", () =>{
+        window.location.href = "/update?t=pass";
+    })
+    // When suggestion is clicked
+    document.getElementById("suggest").addEventListener("click", () =>{
+        window.location.href = "/suggestion";
+    })
+    // When logout is clicked
+    document.getElementById("logout").addEventListener("click", () =>{
+        window.location.href = "/logout";
+    })
+    // When favorites is clicked
+    document.getElementById("fav-list").addEventListener("click", () =>{
+        window.location.href = "/favorites";
+    })
+    // == POP UP Message Handler ==
+    window.onload = function() {
+    <% if (typeof msj !== 'undefined' && msj) { console.log(msj) %> 
+        let popup = document.getElementById("popup");
+        let cerrarBtn = document.getElementById("cerrar");
+        //let deleteBtn = document.getElementById("deleted");
+        popup.innerHTML = `<div>
+                                <h2>¡Información Cambiada!</h2>
+                                <p>La información se ha cambiado correctamente.</p>
+                                <button type="button" class="btn-b" id="cerrar" onclick="cerrar()">Cerrar</button>
+                            </div>`
+        popup.style.display = "block";
+    <% } %> 
+    };
+    // functions for pop up buttons
+    function cerrar() {
+        let popup = document.getElementById("popup");
+        popup.style.display = "none";
+    }
+    function borrar() {
+            window.location.href = "/delete";
+        }
+</script>
+</body>
+</html>

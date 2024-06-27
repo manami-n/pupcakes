@@ -1,0 +1,60 @@
+<%- include("templates/head.ejs") %>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main class="form-pg">
+    <section class="content-form">
+        <h2>Registrar</h2>
+        <p id="error">Error</p>
+        <form action="/registrar" method="post" id="f-reg">
+            <div>
+                <label for="em">Correo electrónico</label>
+                <input class="in-s" type="email" id="em" name="email" required placeholder="Introduce tu E-mail">
+            </div>
+            <div>
+                <label for="name">Nombre usuario</label>
+                <input class="in-s" type="text" name="name" id="name" required max="30" placeholder="Máx. 30 letras">
+            </div>
+            <div>
+            <label for="pw">Contraseña</label>
+            <input class="in-s" type="password" id="pw" name="pass" required max="10" placeholder="Máx. 10 letras">
+            </div>
+            <div>
+                <label for="pw">Confirma la Contraseña</label>
+                <input class="in-s" type="password" id="pw2" required placeholder="Repite la contraseña">
+            </div>
+            <p>Al registrarte, aceptas nuestros Términos. Conozca cómo recopilamos, usamos y compartimos sus datos en nuestra Política de Privacidad y cómo usamos cookies y tecnología similar en nuestra Política de Cookies.</p>
+            <input type="submit" class="btn-b" value="Registrar" id="submit">
+        </form>
+        <p class="alter">¿Ya tienes la cuenta? <a href="login">Iniciar sessión</a></p>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<script>
+    // == Password Validation ==
+    document.getElementById("f-reg").addEventListener("submit", () => {
+        let pw = document.getElementById("pw").value;
+        let pw2 = document.getElementById("pw2").value;
+        if (pw !== pw2) { // If passwords differ
+            let error = document.getElementById("error");
+            error.innerHTML = "Contraseñas no coinciden";
+            error.style.display = "block";
+            event.preventDefault(); // Prevent form submission
+        }
+    })
+    // == POP UP Message Handler ==
+    window.onload = function() {
+    <% if (typeof msj !== 'undefined' && msj) { %> 
+        let error = document.getElementById("error");
+        error.innerHTML = "Correo electrónico ya registrado, por favor inicia sesión o utiliza otro correo electrónico.";
+        error.style.display = "block";
+    <% } %> 
+    };
+</script>
+</body>
+</html>

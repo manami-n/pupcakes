@@ -1,0 +1,42 @@
+<%- include("templates/head.ejs") %>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main>
+<!-- MAP -->
+    <section class="content-width list">
+        <h2><%= title %></h2>
+    <%  let verf, rsvn = ""
+        list.forEach((i) => { %>    
+        <article class="card" onclick="goToLocation('<%= i.id_location %>')">
+            <figure>
+                <img src="locations/<%= i.name %>.jpg" alt="<%= i.name %>">
+            </figure>
+            <div>
+                <h3><%= i.name %></h3>
+                <% if(i.verf === 1){verf = "Verificado"} else {verf = "Sugerido"};
+                    if(i.rsvn === 1){rsvn = "Reservación requierida"} else {rsvn = "Sin reservación"} %>
+                <p class="verified"><%= verf %></p>
+                <ul class="tag">
+                    <li><%= i.cate %></li>
+                    <li><%= rsvn %></li>
+                </ul>
+            </div>
+        </article>
+    <% }) %>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<script>
+    // jump to business page when clicked on an article
+    function goToLocation(id) {
+        window.location.href = `/local/${id}`;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<%- include("templates/head.ejs") %>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main class="form-pg">
+    <!-- Suggestion Form -->
+    <section class="content-form">
+        <h2>Suggestions</h2>
+        <form action="/suggest" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="name">Nombre del lugar *</label>
+                <input class="in-s" type="text" name="name" id="name" required placeholder="Máx. 50 letras">
+            </div>
+            <div>
+                <label for="address">Dirección *</label>
+                <p id="error"></p>
+                <input class="in-s" type="text" name="address" id="address" required placeholder="Dirección">
+            </div>
+            <div>
+                <label for="tel">Teléfono</label>
+                <input class="in-s" type="text" name="tel" id="tel" placeholder="+34 o sin código">
+            </div>
+            <div>
+                <label for="url">URL</label>
+                <input class="in-s" type="text" name="url" id="url" placeholder="www...">
+            </div>
+            <div>
+                <label for="descr">Descripción corta *</label>
+                <textarea name="descr" id="descr" class="in-s" required></textarea>
+            </div>
+            <div>
+                <label for="cate">Categoría *</label>
+                <select name="cate" id="cate" class="in-s">
+                    <option value="Cafe">Cafetería</option>
+                    <option value="Brunch">Brunch</option>
+                    <option value="Restaurante">Restaurante</option>
+                    <option value="Bar">Bar</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div class="checkbx">
+                <label>Reservación requierida<input type="checkbox" name="rsvn"><span></span></label>
+            </div>
+            <!-- Need to reconsider for the image conversion later-->
+            <div>
+                <p class="label-image">Elige una imagen (máx. 3MB)</p>
+                <p id="file-name"></p>
+                <label class="btn-b">Seleccionar Imagen
+                        <input type="file" name="image" accept="image/*" max-file-size="3145728" onchange="updateFileName(this)">
+                </label>
+            </div>
+            <p class="important">* Los datos requeridos para registrar un nuevo lugar.</p>
+            <button type="submit" class="btn-b">Enviar</button>
+        </form>
+    </section>
+</main>
+
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<script>
+    // == Error message ==
+    window.onload = function() {
+    <% if (typeof msj !== 'undefined' && msj) { %> 
+        let error = document.getElementById("error");
+        error.innerHTML = "No se logró localizar la dirección en el mapa.";
+        error.style.display = "block";
+    <% } %> 
+    };
+
+    // function to get the name of the file and show.
+    function updateFileName(input) {
+        const fileName = input.files[0].name
+        if (input.files.length > 0) {
+            document.getElementById('file-name').textContent = fileName;
+        }
+    }
+</script>
+</body>
+</html>

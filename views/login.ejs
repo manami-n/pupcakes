@@ -1,0 +1,54 @@
+<%- include("templates/head.ejs") %>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main class="form-pg">
+    <section class="content-form">
+        <h2>Iniciar sessión</h2>
+        <p id="error">El e-maily/o contraseña incorrecta.</p>
+        <form action="/account" method="post">
+            <div>
+                <label for="email">E-mail</label>
+                <input class="in-s" type="email" id="email" name="email">
+            </div>
+            <div>
+                <label for="pass">Contraseña</label>
+                <input class="in-s" type="password" id="pass" name="pass">
+            </div>
+            <input type="submit" class="btn-b" value="Log In">
+        </form>
+        <p class="alter">¿No tienes la cuenta? <a href="signup">Registrar</a></p>
+    </section>
+    <section id="popup">
+        <div>
+            <h2>¡Gracias!</h2>
+            <p>¡Tu cuenta ha sido creada!<br>
+                Por favor, inicia sesión para acceder a tu cuenta.</p>
+            <button type="button" class="btn-b" id="cerrar">Cerrar</button>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<script>
+// message pop up handling
+window.onload = function() {
+    <% if (msj == 'error' && msj) {%> 
+        let error = document.getElementById("error");
+        error.style.display = "block";
+    <% } else if (msj == 'success' && msj) { %> 
+        let popup = document.getElementById("popup");
+        let cerrarBtn = document.getElementById("cerrar");
+        popup.style.display = "block";
+        cerrarBtn.addEventListener("click", () => {
+            popup.style.display = "none";
+        });
+    <% } %>
+};
+</script>
+</body>
+</html>

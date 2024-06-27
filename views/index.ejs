@@ -1,0 +1,147 @@
+<%- include("templates/head.ejs") %>
+<%- include("templates/header.ejs") %>
+<!-- MAIN -->
+<main>
+<!-- Landing search bar -->
+    <section class="landing">
+        <div class="content-width">
+            <h2>Mapa para 4 patitas</h2>
+            <h3>Encuentra los mejores lugares para comer y beber con tu mascota.</h3>
+        </div>
+        <form action="/search" class="content-width">
+            <input type="text"  class="in-r" name="txt" id="index-search" placeholder="Nombre de negocio">
+            <button type="button" class="btn-b nearby-btn" id="nearby-btn">Cerca de mí</button>
+            <button type="submit" class="btn-b">Buscar</button>
+        </form>
+    </section>
+<!-- Recently added -->
+    <section class="recent">
+        <h2>Nuevos Lugares</h2>
+        <div class="content-width">
+        <%  let verf, rsvn = ""
+            recent.forEach((i) => { %>
+            <article class="card" onclick="goToLocation('<%= i.id_location %>')">
+                <figure>
+                    <img src="locations/<%= i.name %>.jpg" alt="<%= i.name %>">
+                </figure>
+                <div>
+                    <h3><%= i.name %></h3>
+                    <% if(i.verf === 1){verf = "Verificado"} else {verf = "Sugerido"};
+                        if(i.rsvn === 1){rsvn = "Reservación requierido"} else {rsvn = "Sin reservación"} %>
+                    <p class="verified"><%= verf %></p>
+                    <ul class="tag">
+                        <li><%= i.cate %></li>
+                        <li><%= rsvn %></li>
+                    </ul>
+                </div>
+            </article>
+        <% }) %>
+        </div>
+    </section>
+<!-- About -->
+    <section class="about">
+        <h2>¿Por qué Pupcakes?</h2>
+        <div class="content-width">
+            <article>
+                <img src="/img/why1.svg" alt="">
+                <p>Puedes salir más con tu mascota</p>
+            </article>
+            <article>
+                <img src="/img/why2.svg" alt="">
+                <p>No hay que preocuparte por la hora de volver a casa</p>
+            </article>
+            <article>
+                <img src="/img/why3.svg" alt="">
+                <p>Fácil de encontrar la información con mascotas</p>
+            </article>
+            <article>
+                <img src="/img/why4.svg" alt="">
+                <p>Puedes guardar tus lugares favoritos</p>
+            </article>
+        </div>
+    </section>
+<!-- Register, only appear when the user is not logged in-->
+<% if (loggedIn === false) { %>
+    <section class="register content-width">
+        <h2>Registrar con nosotros</h2>
+        <p>Regístrate ahora y guarda tus lugares favoritos, sugiernos un nuevo sitio y más beneficios en el futuro.</p>
+            <a href="/signup" class="btn-b">Registrar</a>        
+    </section>     
+<% } %>   
+<!-- Nearby Shortcut -->
+    <section class="nearby-click">
+            <h2>Encontrar un lugar cercano</h3>
+            <button class="btn-b nearby-btn">Buscar</button>
+    </section>
+<!-- FAQ -->
+    <section class="faq">
+        <h2>FAQ</h2>
+        <details>
+            <summary>¿Cómo encuentro lugares cercanos que sean aptos para mascotas?</summary>
+            <p>Puedes utilizar la función de búsqueda en el mapa e ingresar tu ubicación actual para encontrar lugares cercanos que sean pet-friendly. 
+                También puedes filtrar por tipo de lugar, con o sin reservación, etc.
+            </p>
+            </details>
+            <details>
+            <summary>¿Puedo agregar un nuevo lugar que conozco y que acepta mascotas?</summary>
+            <p>Sí, puedes agregar un nuevo lugar desde tu área personal. 
+                Asegúrate de proporcionar toda la información requerida y una imagen del lugar para que otros usuarios puedan encontrarlo fácilmente.
+            </p>
+        </details>
+    </section>
+    <section id="popup">
+        <div>
+            <h2>Good Bye...</h2>
+            <p>Tu cuenta ha sido eliminado.</p>
+            <button type="button" class="btn-b" id="cerrar">Cerrar</button>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<%- include("templates/footer.ejs") %>
+<!-- Common Script -->
+<script src="/js/script.js"></script>
+<!-- Font-awesome -->
+<script src="https://kit.fontawesome.com/e26a24a7d1.js" crossorigin="anonymous"></script>
+<script>
+    // FAQ Accordion
+    const details = document.querySelectorAll("details");
+    details.forEach((el) => {
+        el.addEventListener("click", () => {
+            details.forEach((detail) => {
+                if (detail !== el) {
+                    detail.removeAttribute("open");
+                }
+            });
+        });
+    });
+
+    //== POP UP Message Handler ==
+    window.onload = function() {
+    <% if (typeof msj !== 'undefined' && msj) { %> 
+        let popup = document.getElementById("popup");
+        let cerrarBtn = document.getElementById("cerrar");
+        popup.style.display = "block";
+        cerrarBtn.addEventListener("click", () => {
+            popup.style.display = "none";
+        });
+    <% } %> 
+    };
+
+    // == Near By Button Clicked ==
+    const nearby = document.getElementsByClassName('nearby-btn')
+    Array.from(nearby).forEach((i)=>{ // Any near by button 
+        i.addEventListener('click', function(e) { // when it's clicked
+            e.preventDefault();
+            window.location.href = '/search?nearby=true';
+        });
+    })
+
+    //== Jump to Business page when Card is clicked ==
+    function goToLocation(id) {
+        window.location.href = `/local/${id}`;
+    }
+</script>
+</body>
+</html>
