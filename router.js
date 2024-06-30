@@ -445,8 +445,8 @@ router.post('/suggest', requireLogin, upload.single('image'), (req, res) => {//u
                     return res.redirect('/suggestion?m=error'); // stay in suggestion page with error message
                 }
                 // query to insert to the table
-                const insertQuery = `INSERT INTO locations (name, descr, address, tel, url, coodi_long, coodi_lat, cate, rsvn)
-                                     VALUES (${name}, ${descr}, ${address}, ${tel}, ${url}, ${coordinates.lon}, ${coordinates.lat}, ${cate}, ${rsvnBoolean})`;
+                const insertQuery = `INSERT INTO locations (name, descr, address, tel, url, coodi_long, coodi_lat, cate, rsvn) 
+                VALUES ("${name}", "${descr}", "${address}", "${tel}", "${url}", "${coordinates.lon}", "${coordinates.lat}", "${cate}", "${rsvnBoolean}")`;
                 connMySQL.query(insertQuery, (err, result) => {
                     if (err) throw err;
 
